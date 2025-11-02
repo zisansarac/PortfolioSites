@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\PortfolioSites.csproj": {}
+    "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\PortfolioSites.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\PortfolioSites.csproj": {
+    "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\PortfolioSites.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\PortfolioSites.csproj",
+        "projectUniqueName": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\PortfolioSites.csproj",
         "projectName": "PortfolioSites",
-        "projectPath": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\PortfolioSites.csproj",
+        "projectPath": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\PortfolioSites.csproj",
         "packagesPath": "C:\\Users\\sarac\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\obj\\",
+        "outputPath": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\sarac\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -53,6 +53,16 @@
               "version": "[9.0.10, )"
             },
             "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[9.0.10, )"
             },
