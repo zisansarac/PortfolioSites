@@ -1,9 +1,14 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
 namespace Backend.Models;
 
-public class AppUser: IdentityUser
+public class AppUser: IdentityUser<Guid> 
 {
-    public string? FullName { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+   
+    
+    [MaxLength(100)] 
+    public string FullName { get; set; } = default!;
+    
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
 }

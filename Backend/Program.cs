@@ -3,10 +3,13 @@ using Backend.Data;
 using Backend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("PortfolioConnection")));
 
 builder.Services.AddIdentityCore<AppUser>(
      options =>
@@ -18,7 +21,11 @@ builder.Services.AddIdentityCore<AppUser>(
          options.Password.RequireUppercase = false;
          options.Password.RequireLowercase = false;
      }
-).AddEntityFrameworkStores<AppDbContext>().AddSignInManager();
+)
+.AddRoles<IdentityRole<Guid>>()
+.AddEntityFrameworkStores<AppDbContext>()
+.AddSignInManager();
+
 
 var jwt = builder.Configuration.GetSection("JWTSettings");
 
