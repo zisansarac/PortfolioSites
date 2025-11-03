@@ -11,7 +11,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 
-[Route("api/[controller]")]
+[Route("api/auth")]
 
 
 public class AuthController: ControllerBase

@@ -52,10 +52,13 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
  
   const login = (t: string, u: User) => {
+    console.log("LOGIN FONKSİYONU ÇALIŞTI. Token alınıyor:", t);
     setToken(t);                                  
-    setUser(u);                                      
+    setUser(u);   
+
     localStorage.setItem("token", t);                
-    localStorage.setItem("user", JSON.stringify(u));  
+    localStorage.setItem("user", JSON.stringify(u)); 
+    console.log("LocalStorage Kontrolü: ", localStorage.getItem("token")); 
   };
 
   
