@@ -1,17 +1,17 @@
+using Backend.Data;
 using Backend.Dtos;
-using Backend.Extensions; 
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-
 
 namespace Backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-[Authorize] 
+[Route("api/users")] 
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly UserManager<AppUser> _userManager;
@@ -21,67 +21,82 @@ public class UsersController : ControllerBase
         _userManager = userManager;
     }
 
-    
-    [HttpGet("me")]
-    public async Task<ActionResult<AuthResponse>> GetMe()
+    private Guid GetCurrentUserId()
     {
-        var userIdString = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
-        var user = await _userManager.FindByIdAsync(userIdString!);
-
-        if (user is null)
-        {
-            return NotFound(new { message = "Oturum sahibi bulunamadı." });
-        }
-
-        return Ok(new AuthResponse
-        {
-            Token = "JWT_OK",
-            ExpiresAt = DateTime.MaxValue,
-            Email = user.Email ?? "",
-            FullName = user.FullName,
-            AvatarUrl = user.AvatarUrl, 
-            Bio = user.Bio
-        });
+        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return Guid.TryParse(idClaim, out var userId) ? userId : Guid.Empty;
     }
 
-
-    [HttpPut("me")]
-    public async Task<IActionResult> UpdateMe([FromBody] UserUpdateRequest dto)
+ 
+    [HttpGet("me")]
+    public async Task<IActionResult> GetCurrentUserProfile()
     {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+        {
+            return Unauthorized(); 
+        }
+
+        var user = await _userManager.FindByIdAsync(userId.ToString());
         
-        var userIdString = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
-        var user = await _userManager.FindByIdAsync(userIdString!);
-        
-        if (user is null)
+        if (user == null)
         {
             return NotFound(new { message = "Kullanıcı bulunamadı." });
         }
 
-
-        if (!string.IsNullOrEmpty(dto.FullName))
+        
+        var response = new UserProfileResponse
         {
-            user.FullName = dto.FullName;
+            Id = user.Id,
+            Email = user.Email ?? "",
+            FullName = user.FullName,
+            CreatedAt = user.CreatedAt, 
+            AvatarUrl = user.AvatarUrl,
+            Bio = user.Bio
+        };
+
+        return Ok(response);
+    }
+
+    
+    [HttpPut("me")]
+    public async Task<IActionResult> UpdateCurrentUserProfile([FromBody] UpdateUserProfileRequest request)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+        {
+            return Unauthorized();
+        }
+
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return NotFound(new { message = "Kullanıcı bulunamadı." });
         }
         
-        if (dto.AvatarUrl is not null)
+        
+        if (!string.IsNullOrWhiteSpace(request.FullName))
         {
-            user.AvatarUrl = dto.AvatarUrl;
-        }
-
-        if (dto.Bio is not null)
-        {
-            user.Bio = dto.Bio;
+            user.FullName = request.FullName;
         }
         
+        if (request.AvatarUrl != null) 
+        {
+            user.AvatarUrl = request.AvatarUrl;
+        }
+        if (request.Bio != null) 
+        {
+            user.Bio = request.Bio;
+        }
+        
+
         var result = await _userManager.UpdateAsync(user);
 
         if (!result.Succeeded)
         {
-            return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+             return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
         }
 
-        return NoContent(); // 
+        return NoContent(); 
     }
 }

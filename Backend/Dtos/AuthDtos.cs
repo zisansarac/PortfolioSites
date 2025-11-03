@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Dtos;
 
@@ -23,15 +22,5 @@ public class AuthResponse
     public string Email { get; set; } = default!;
     public string? FullName { get; set; }
 
-    public string? AvatarUrl { get; set; }
-    public string? Bio { get; set; }
-
 }
 
-public class UserUpdateRequest
-{
-    [MaxLength(100)]
-    public string? FullName { get; set; }
-    public string? AvatarUrl { get; set; } 
-    public string? Bio { get; set; }
-}

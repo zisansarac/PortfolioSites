@@ -17,7 +17,7 @@ public class Post
     public string Content { get; set; } = default!;
 
     [Required]
-    public string AuthorId { get; set; } = default!;
+    public Guid AuthorId { get; set; } = default!;
 
     [ForeignKey(nameof(AuthorId))]
     public AppUser? Author { get; set; }
@@ -25,4 +25,6 @@ public class Post
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     public bool IsPublished { get; set; } = true;
+
+    
 }
