@@ -22,6 +22,10 @@ public class AuthResponse
     public DateTime ExpiresAt { get; set; }
     public string Email { get; set; } = default!;
     public string? FullName { get; set; }
+
+    public string? AvatarUrl { get; set; }
+    public string? Bio { get; set; }
+
 }
 
 public class UserUpdateRequest
