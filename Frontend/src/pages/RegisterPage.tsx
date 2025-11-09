@@ -47,7 +47,7 @@ const RegisterPage: React.FC = () =>{
           <h1>Kayıt Ol</h1>
           <form onSubmit={onSubmit}>
             <label style={{display: "block", marginTop: 12}}>Ad Soyad
-            <input type="text" value={fullName} onChange={e=>setEmail(e.target.value)} required style={{width:"100%", padding:10, marginTop:12}} />
+            <input type="text" value={fullName} onChange={e=>setFullName(e.target.value)} required style={{width:"100%", padding:10, marginTop:12}} />
             </label>
             <label style={{display: "block", marginTop: 12}}>E-posta
             <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required style={{width:"100%", padding:10, marginTop:12}} />
