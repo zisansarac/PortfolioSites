@@ -3,6 +3,7 @@ import { useAuth } from "../auth/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import api from "../lib/api";
+import "tailwindcss";
 
 
 const LoginPage: React.FC = () =>{
@@ -46,30 +47,59 @@ const LoginPage: React.FC = () =>{
         }
     };
 
-    return(
-        <div style={{maxWidth: 380, margin: "60px auto", fontFamily: "system-ui"}}>
-            <h1>Giriş Yap</h1>
-            <form onSubmit={onSubmit}>
-                <label style={{display: "block", marginTop: 12}}>E-posta
-                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required style={{width: "100%", padding:10, marginTop:12}} />
-                </label>
-                <label style={{display: "block", marginTop: 12}}>Şifre
-                <input type="password" value={password} onChange={e=>setPassword(e.target.value)} required style={{width: "100%", padding:10, marginTop:12}} />
-                </label>
-
-                {error && <div style={{color: "crimson", marginTop:10}}>{error}</div>}
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    style={{width: "100%",padding: 12,marginTop:16,border:0,borderRadius:8,cursor:"pointer"}}
-                >
-                    {loading ? "Gönderiliyor...":"Giriş Yap"}
-                </button>
-            </form>
-            <p style={{marginTop:12}}>
-                Hesabın Yok mu ? <Link to="/register">Kayıt Ol</Link>
-            </p>
+    return (
+        // 1. Dış Konteyner: Ekranı ortala
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+            
+            {/* 2. Kart (Card) Yapısı: Beyaz kutu, gölge, köşeler */}
+            <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl border border-gray-100">
+                
+                <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Giriş Yap</h1>
+                
+                <form onSubmit={onSubmit} className="space-y-4">
+                    
+                    {/* Input Stilleri */}
+                    <label className="block text-sm font-medium text-gray-700">E-posta
+                        <input 
+                            type="email" 
+                            value={email} 
+                            onChange={e => setEmail(e.target.value)} 
+                            required 
+                            // w-full: Tam genişlik, p-3: padding, mt-1: margin-top, 
+                            // border border-gray-300: ince gri kenarlık, rounded-lg: yuvarlak köşeler
+                            className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none" 
+                        />
+                    </label>
+                    
+                    <label className="block text-sm font-medium text-gray-700">Şifre
+                        <input 
+                            type="password" 
+                            value={password} 
+                            onChange={e => setPassword(e.target.value)} 
+                            required 
+                            className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none" 
+                        />
+                    </label>
+                    
+                    {error && <div className="text-sm text-red-600 mt-3">{error}</div>}
+                    
+                    {/* Buton Stili */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        // bg-blue-600: Mavi arka plan, hover:bg-blue-700: Hover efekti
+                        className="w-full py-3 mt-4 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 disabled:bg-blue-400"
+                    >
+                        {loading ? "Gönderiliyor..." : "Giriş Yap"}
+                    </button>
+                </form>
+                
+                {/* Alt Link */}
+                <p className="mt-6 text-center text-sm text-gray-600">
+                    Hesabın Yok mu ? 
+                    <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 ml-1">Kayıt Ol</Link>
+                </p>
+            </div>
         </div>
     );
 }

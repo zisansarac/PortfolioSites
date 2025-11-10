@@ -62,7 +62,7 @@ const PostDetailPage:React.FC = () => {
 
             {mine && (
                 <div style={{display: "flex", gap:8,marginTop:24}}>
-                    <Link to={`/blog/edit/${post.id}`} state={{post}}style={{padding:"8px 12px",border:"1px solid #ddd",borderRadius:8}}>Düzenle</Link>
+                    <Link to={`/posts/edit/${post.id}`} state={{post}}style={{padding:"8px 12px",border:"1px solid #ddd",borderRadius:8}}>Düzenle</Link>
                     <button onClick={onDelete} style={{padding:"8px 12px",borderRadius:8,border:0,background:"#ffe5e8",color: "#b30024",cursor:"pointer"}}>Sil</button>
                 </div>
             )}

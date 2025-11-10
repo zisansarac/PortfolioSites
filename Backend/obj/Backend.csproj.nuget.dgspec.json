@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\Backend.csproj": {}
+    "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\backend\\Backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\Backend.csproj": {
+    "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\Backend.csproj",
+        "projectUniqueName": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\Backend.csproj",
+        "projectPath": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\backend\\Backend.csproj",
         "packagesPath": "C:\\Users\\sarac\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\Backend\\obj\\",
+        "outputPath": "C:\\Users\\sarac\\OneDrive\\Belgeler\\GitHub\\PortfolioSites\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\sarac\\AppData\\Roaming\\NuGet\\NuGet.Config"

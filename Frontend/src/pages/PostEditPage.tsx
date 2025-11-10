@@ -68,85 +68,69 @@ const PostEditPage: React.FC = () => {
   };
 
   // ------------------------------ JSX (UI kısmı) ------------------------------
-  return (
-    <div style={{ maxWidth: 760, margin: "32px auto", fontFamily: "system-ui" }}>
-      {/* Sayfa başlığı ve geri dön linki */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-        <h1 style={{ marginBottom: 6 }}>
-          {editing ? "Yazıyı Düzenle" : "Yeni Yazı"} {/* Başlık moduna göre değişir */}
-        </h1>
-        <Link to="/">← Liste</Link> {/* Ana listeye geri dönüş linki */}
-      </div>
+ return (
+    // Dış Konteyner
+    <div className="flex items-start justify-center min-h-screen bg-gray-50 p-4 font-sans">
+        
+        {/* Daha Geniş Kart */}
+        <div className="w-full max-w-4xl bg-white p-8 mt-10 mb-10 rounded-2xl shadow-2xl border border-gray-100">
+            
+            {/* Başlık ve Geri Link */}
+            <div className="flex justify-between items-center border-b pb-4 mb-6">
+                <h1 className="text-3xl font-bold text-gray-900">
+                    {editing ? "Yazıyı Düzenle" : "Yeni Yazı Yayınla"}
+                </h1>
+                <Link to="/" className="text-primary-600 hover:text-primary-800 transition-colors">
+                    ← Tüm Yazılar
+                </Link>
+            </div>
 
-      {/* Hata mesajı kutusu */}
-      {error && (
-        <div
-          style={{
-            background: "#fff2f2",
-            color: "#b30024",
-            border: "1px solid #ffd6d9",
-            padding: 12,
-            borderRadius: 8,
-            marginBottom: 12,
-          }}
-        >
-          {error}
+            {/* Hata Mesajı */}
+            {error && (
+                <div className="bg-red-50 text-red-700 border border-red-200 p-3 rounded-lg mb-6">{error}</div>
+            )}
+
+            <form onSubmit={onSubmit} className="space-y-6">
+                
+                {/* Başlık Input */}
+                <label className="block text-sm font-medium text-gray-700">Başlık
+                    <input
+                        // ... (değerler ve onChange)
+                        className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors"
+                    />
+                </label>
+
+                {/* İçerik Textarea */}
+                <label className="block text-sm font-medium text-gray-700">İçerik
+                    <textarea
+                        // ... (değerler ve onChange)
+                        rows={10}
+                        className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors"
+                    />
+                </label>
+
+                {/* Yayın Durumu Checkbox */}
+                <label className="flex items-center space-x-2 text-sm text-gray-700 pt-2">
+                    <input
+                        type="checkbox"
+                        // ... (checked ve onChange)
+                        className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span>Yayınla (Taslak için kapat)</span>
+                </label>
+
+                {/* Kaydet Butonu */}
+                <button
+                    type="submit"
+                    disabled={busy}
+                    className="w-full py-3 mt-6 bg-primary-600 text-white font-semibold rounded-lg shadow-md hover:bg-primary-700 transition duration-150 disabled:bg-primary-400"
+                >
+                    {busy ? "Kaydediliyor…" : editing ? "Güncelle" : "Yayınla"}
+                </button>
+            </form>
         </div>
-      )}
-
-      {/* Form alanları */}
-      <form onSubmit={onSubmit}>
-        {/* Başlık input’u */}
-        <label style={{ display: "block", marginTop: 12 }}>
-          Başlık
-          <input
-            value={title}                             // State’ten gelen başlık değeri
-            onChange={(e) => setTitle(e.target.value)}// Kullanıcı yazdıkça state güncellenir
-            required                                  // Boş bırakılamaz
-            style={{ width: "100%", padding: 10, marginTop: 6 }}
-          />
-        </label>
-
-        {/* İçerik alanı */}
-        <label style={{ display: "block", marginTop: 12 }}>
-          İçerik
-          <textarea
-            value={content}                           // State’ten gelen içerik
-            onChange={(e) => setContent(e.target.value)} // Yazdıkça güncellenir
-            required                                  // Boş olamaz
-            rows={12}                                 // Yüksekliği 12 satır
-            style={{ width: "100%", padding: 10, marginTop: 6, fontFamily: "inherit" }}
-          />
-        </label>
-
-        {/* Yayın durumu kutusu */}
-        <label style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 12 }}>
-          <input
-            type="checkbox"
-            checked={isPublished}                     // Checkbox state
-            onChange={(e) => setIsPublished(e.target.checked)} // Değişiklikte state güncellenir
-          />
-          Yayınla (taslak için kapat)                 {/* Açıklama */}
-        </label>
-
-        {/* Kaydet / Güncelle butonu */}
-        <button
-          type="submit"
-          disabled={busy}                             // API isteği sırasında devre dışı
-          style={{
-            padding: "12px 16px",
-            marginTop: 16,
-            border: 0,
-            borderRadius: 8,
-            cursor: "pointer",
-          }}
-        >
-          {/* Buton metni mod durumuna göre değişir */}
-          {busy ? "Kaydediliyor…" : editing ? "Güncelle" : "Yayınla"}
-        </button>
-      </form>
     </div>
-  );
+);
 };
 
 export default PostEditPage; // Bileşeni dışa aktar, router'da kullanılacak
