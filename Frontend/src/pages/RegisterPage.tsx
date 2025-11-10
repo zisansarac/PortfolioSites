@@ -52,7 +52,7 @@ const RegisterPage: React.FC = () =>{
                                 <h1 className="text-[#111318] text-4xl font-black leading-tight tracking-[-0.033em]">
                                     Yaratıcı Topluluğumuza Katılın
                                 </h1>
-                                <p className="text-[#616f89] text-base font-normal leading-normal">
+                                <p className="text-[#444e63] text-base font-light leading-normal">
                                     Portföyünüzü oluşturun ve çalışmalarınızı sergilemeye hemen başlayın.
                                 </p>
                             </div>
@@ -66,7 +66,8 @@ const RegisterPage: React.FC = () =>{
                                         required 
                                         placeholder="Örn: Sara Demir"
                                         // Input stili referans ile uyumlu
-                                        className="form-input flex w-full h-14 p-[15px] border border-[#dbdfe6] rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
+                                        className="form-input flex w-full h-14 p-[15px]
+                                        bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
                                     />
                                 </label>
 
@@ -78,7 +79,7 @@ const RegisterPage: React.FC = () =>{
                                         onChange={e => setEmail(e.target.value)} 
                                         required 
                                         placeholder="Örn: sara.demir@example.com"
-                                        className="form-input flex w-full h-14 p-[15px] border border-[#dbdfe6] rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
+                                        className="form-input flex w-full h-14 p-[15px] bg-neutral-100 border border-[#888f9c]  rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
                                     />
                                 </label>
                                 <label className="flex flex-col">
@@ -90,10 +91,10 @@ const RegisterPage: React.FC = () =>{
                                             onChange={e => setPassword(e.target.value)} 
                                             required 
                                             placeholder="Şifrenizi Girin"
-                                            className="form-input flex w-full h-14 p-[15px] border border-[#dbdfe6] rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
+                                            className="form-input flex w-full h-14 p-[15px] bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
                                         />
                                         {/* Göz İkonu (Opsiyonel: Şifre Görünürlüğünü Değiştirme) */}
-                                        <button aria-label="Şifre Görünürlüğünü Aç/Kapa" className="text-[#616f89] absolute inset-y-0 right-0 flex items-center justify-center pr-4" type="button">
+                                        <button aria-label="Şifre Görünürlüğünü Aç/Kapa" className="text-[#4869a5] absolute inset-y-0 right-0 flex items-center justify-center pr-4" type="button">
                                             <span className="material-symbols-outlined">visibility</span>
                                         </button>
                                     </div>
@@ -106,12 +107,12 @@ const RegisterPage: React.FC = () =>{
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="mt-2 flex h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200 disabled:bg-primary/50"
+                                    className="mt-2 flex h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-cyan-950 text-blue-50 text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200 disabled:bg-primary/50"
                                 >
                                     <span className="truncate">{loading ? "Oluşturuluyor..." : "Hesap Oluştur"}</span>
                                 </button>
                             </form>
-                            <p className="text-[#616f89] text-sm font-normal">
+                            <p className="text-[#444e63] text-sm font-normal">
                                 Zaten bir hesabınız var mı?
                                 <Link to="/login" className="font-semibold text-primary hover:underline ml-1">Giriş Yap</Link>
                             </p>

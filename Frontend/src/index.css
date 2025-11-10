@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+:root {
+  --color-mint-500: oklch(0.72 0.11 178);
+  background-color: rgba(131, 177, 190, 0.548)
+}
