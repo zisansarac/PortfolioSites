@@ -49,85 +49,121 @@ const HomePage: React.FC = () => {
         return <div style={{ padding: 20, color: 'crimson' }}>{error}</div>;
     }
 
+    // 🔥 Hesaplamalar:
+    // 1. Profil kartı için dinamik kaydırma stilini hesapla (hizalama için)
+    const profileMarginTop = isAuthenticated ? { marginTop: '72px' } : {};
+
+    // 2. Main içeriğinin kaplayacağı sütun sayısını hesapla
+    const mainColSpan = isAuthenticated ? '3' : '4';
+
+    // 3. Post listesi için dinamik sütun sayısını hesapla (Alan genişliğine göre 3 veya 4 kart)
+    const postGridCols = isAuthenticated ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
+    
+    // 4. Boş yazı durumu için col-span hesaplama
+    const emptyStateColSpan = isAuthenticated ? 'lg:col-span-3' : 'lg:col-span-4';
+
+
     return (
-        // max-w-7xl yerine max-w-6xl (daha büyük) ve font-sans
+        // Sayfanın Ana Konteyneri
         <div className="max-w-6xl mx-auto pt-4 pb-12 px-4 sm:px-6 lg:px-8 font-sans">
             
             {/* --- Header/Navigasyon --- */}
             <header className="flex flex-wrap justify-between items-center py-4 border-b border-gray-200 mb-10">
-                {/* primary-500 yeni özgün rengimiz */}
-                <Link to="/" className="text-3xl font-extrabold text-primary-700 hover:text-primary-900 transition-colors">
-                    Sara Portföy
+                <Link to="/" className="text-3xl font-extrabold text-gray-900 hover:text-sky-950 transition-colors">
+                    Portfolio Site
                 </Link>
                 <nav className="flex space-x-4 items-center">
-                    {/* ... (Auth linkleri, renkler primary-600 olarak güncellenmeli) ... */}
                     {isAuthenticated ? (
                         <>
-                            <Link to="/profile" className="text-gray-600 hover:text-primary-600 transition-colors">Profilim</Link>
-                            <Link to="/posts/new" className="px-4 py-2 bg-primary-600 text-white rounded-full text-sm hover:bg-primary-700 transition-colors">Yeni Yazı</Link>
-                            <button onClick={logout} className="text-red-500 hover:text-red-700">Çıkış Yap</button>
+                            <Link to="/profile" className="text-gray-600 hover:text-sky-950 font-bold transition-colors">My Profile</Link>
+                            <Link to="/posts/new" className="px-4 py-2 bg-gray-100 text-gray-900 font-bold rounded-full hover:bg-gray-200 transition-colors">New Portfolio</Link>
+                            <button onClick={logout} className="text-red-600 font-bold hover:text-red-800">Çıkış Yap</button>
                         </>
                     ) : (
                         <>
-                            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">Giriş Yap</Link>
-                            <Link to="/register" className="text-gray-600 hover:text-primary-600">Kayıt Ol</Link>
+                            <Link to="/login" className="font-bold text-lg text-gray-900 hover:text-sky-800 transition-colors mr-10">Login</Link>
+                            <Link to="/register" className="text-gray-900 font-bold text-lg transition-colors hover:text-sky-800 mr-10">Register</Link>
                         </>
                     )}
                 </nav>
             </header>
 
-            {/* --- Ana İçerik Alanı: Responsive Grid --- */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12"> {/* 4 Sütunlu yapı */}
+            {/* --- ANA İÇERİK: 4 Sütunlu Responsive Grid (Profile + Portfolios) --- */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start"> 
 
                 {/* ⬅️ Sütun 1: Mini Profil Bloğu (lg:col-span-1) */}
                 {isAuthenticated && (
-                    <aside className="lg:col-span-1 p-6 bg-white border border-gray-200 rounded-2xl shadow-xl h-fit lg:sticky lg:top-8 transform hover:scale-[1.02] transition-transform duration-300">
-                        {/* Başlıklar, ikonlar, boşluklar iyileştirildi */}
-                        <h2 className="text-xl font-bold mb-5 text-gray-800 border-b pb-3">Profil</h2>
+                    <aside 
+                        className="lg:col-span-1 p-6 bg-white border border-gray-200 rounded-2xl shadow-xl h-fit lg:sticky lg:top-8 transform hover:scale-[1.02] transition-transform duration-300"
+                        style={profileMarginTop} 
+                    >
+                        
+                        <h2 className="text-xl font-bold mb-5 text-gray-800 border-b pb-3">My Profile</h2>
                         
                         {/* Avatar / Baş Harf */}
-                        {/* ... (Avatar kısmı aynı kalır, bg-blue-100 yerine bg-primary-100 kullanın) */}
-                        <p className="text-center text-xl font-bold text-primary-800 mb-1">{user?.fullName}</p>
+                        <div className="text-center">
+                           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold mx-auto mb-2">
+                                {/* Kullanıcının baş harflerini gösterir */}
+                                {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('') : 'U'}
+                           </div>
+                        </div>
+
+                        <p className="text-center text-xl font-bold text-gray-800 mb-1">{user?.fullName}</p>
                         <p className="text-center text-sm text-gray-500 mb-4">{user?.email}</p>
                         
-                        {/* Biyo alanı daha stil sahibi */}
                         {user?.bio && (
-                            <p className="text-base text-gray-700 border-t pt-4 mt-4 border-gray-200 italic">
+                            <p className="text-base text-gray-700 border-t pt-4 mt-4 border-gray-200 italic line-clamp-3">
                                 "{user?.bio}"
                             </p>
                         )}
-                        <Link to="/profile" className="block mt-4 text-sm text-primary-600 hover:underline text-center">
-                            Profili Güncelle →
+                        <Link to="/profile" className="block mt-4 font-semibold text-sm text-gray-900 hover:text-sky-950 text-center">
+                            Update your profile →
                         </Link>
                     </aside>
                 )}
 
-                {/* ➡️ Sütun 2: Yazı Listesi (lg:col-span-3) */}
-                <main className={`lg:col-span-${isAuthenticated ? '3' : '4'} space-y-8`}>
-                    <h2 className="text-4xl font-extrabold text-gray-900 mb-8">Yayınlanmış Tüm Yazılar</h2>
+                {/* ➡️ Sütun 2/3/4: Başlık ve Yazı Listesi (main) */}
+                <main className={`lg:col-span-${mainColSpan} space-y-8`}>
                     
-                    {posts.map(post => (
-                        <div 
-                            key={post.id} 
-                            // Kart Büyüklüğü: p-8 (daha fazla boşluk), rounded-2xl, shadow-xl (daha belirgin gölge)
-                            className="p-8 bg-white border border-gray-100 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 transform hover:-translate-y-1"
-                        >
-                            <Link to={`/posts/${post.slug}`} className="block">
-                                <h3 className="text-2xl font-bold text-gray-900 hover:text-primary-600 mb-3 transition-colors">
-                                    {post.title}
-                                </h3>
-                            </Link>
-                            <p className="text-sm text-primary-500 font-medium mb-4">
-                                {new Date(post.createdAt).toLocaleDateString('tr-TR')}
-                            </p>
-                            {/* Yazı içeriği daha uzun gösterilebilir */}
-                            <p className="text-lg text-gray-700 line-clamp-3">{post.content}</p> 
-                            <Link to={`/posts/${post.slug}`} className="mt-4 text-primary-600 hover:text-primary-700 font-medium inline-block">
-                                Devamını Oku →
-                            </Link>
-                        </div>
-                    ))}
-                    {/* ... (Eksik yazı durumu) ... */}
+                    {/* Başlık: Responsive ve Taşmayı Engeller */}
+                    <h2 className="text-4xl font-extrabold text-gray-900 mb-8 truncate overflow-hidden">
+                        All Portfolios
+                    </h2>
+
+                    {/* 🔥 YAZI LİSTESİ GRID KONTEYNERİ (Dinamik Sütun Sayısı) 🔥 */}
+                    <div className={`grid grid-cols-1 sm:grid-cols-2 ${postGridCols} gap-8`}>
+                        
+                        {posts.length > 0 ? (
+                            posts.map(post => (
+                                <div 
+                                    key={post.id} 
+                                    className="p-6 bg-white border border-gray-100 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-0.5"
+                                >
+                                    <Link to={`/posts/${post.slug}`} className="block">
+                                        <h3 className="text-xl font-bold text-gray-900 hover:text-sky-950 mb-3 transition-colors line-clamp-2">
+                                            {post.title}
+                                        </h3>
+                                    </Link>
+                                    <p className="text-sm text-gray-500 font-medium mb-4">
+                                        {new Date(post.createdAt).toLocaleDateString('tr-TR')}
+                                    </p>
+                                    
+                                    <p className="text-gray-700 line-clamp-4 overflow-hidden break-words text-base">
+                                        {post.content}
+                                    </p>
+                                    
+                                    <Link to={`/posts/${post.slug}`} className="mt-4 text-sky-950 hover:text-sky-800 font-medium inline-block">
+                                        For more →
+                                    </Link>
+                                </div>
+                            ))
+                        ) : (
+                            // Boş yazı durumu için dinamik col-span kullanıldı
+                            <div className={`${emptyStateColSpan} text-center py-10 text-gray-600`}>
+                                Henüz yayınlanmış bir portföy yazısı bulunmamaktadır.
+                            </div>
+                        )}
+                    </div>
                 </main>
             </div>
         </div>

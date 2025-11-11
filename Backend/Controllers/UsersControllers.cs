@@ -75,7 +75,7 @@ public class UsersController : ControllerBase
         }
         
         
-        if (!string.IsNullOrWhiteSpace(request.FullName))
+        if (request.FullName != null)
         {
             user.FullName = request.FullName;
         }

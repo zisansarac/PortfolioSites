@@ -69,68 +69,76 @@ const PostEditPage: React.FC = () => {
 
   // ------------------------------ JSX (UI kısmı) ------------------------------
  return (
-    // Dış Konteyner
-    <div className="flex items-start justify-center min-h-screen bg-gray-50 p-4 font-sans">
-        
-        {/* Daha Geniş Kart */}
-        <div className="w-full max-w-4xl bg-white p-8 mt-10 mb-10 rounded-2xl shadow-2xl border border-gray-100">
+        // Dış Konteyner
+        <div className="flex items-start justify-center min-h-screen bg-gray-50 p-4 font-sans">
             
-            {/* Başlık ve Geri Link */}
-            <div className="flex justify-between items-center border-b pb-4 mb-6">
-                <h1 className="text-3xl font-bold text-gray-900">
-                    {editing ? "Yazıyı Düzenle" : "Yeni Yazı Yayınla"}
-                </h1>
-                <Link to="/" className="text-primary-600 hover:text-primary-800 transition-colors">
-                    ← Tüm Yazılar
-                </Link>
-            </div>
-
-            {/* Hata Mesajı */}
-            {error && (
-                <div className="bg-red-50 text-red-700 border border-red-200 p-3 rounded-lg mb-6">{error}</div>
-            )}
-
-            <form onSubmit={onSubmit} className="space-y-6">
+            {/* Daha Geniş Kart */}
+            <div className="w-full max-w-4xl bg-white p-8 mt-10 mb-10 rounded-2xl shadow-2xl border border-gray-100">
                 
-                {/* Başlık Input */}
-                <label className="block text-sm font-medium text-gray-700">Başlık
-                    <input
-                        // ... (değerler ve onChange)
-                        className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors"
-                    />
-                </label>
+                {/* Başlık ve Geri Link */}
+                <div className="flex justify-between items-center border-b pb-4 mb-6">
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        {editing ? "Yazıyı Düzenle" : "Yeni Yazı Yayınla"}
+                    </h1>
+                    <Link to="/" className="text-primary-600 hover:text-primary-800 transition-colors">
+                        ← Tüm Yazılar
+                    </Link>
+                </div>
 
-                {/* İçerik Textarea */}
-                <label className="block text-sm font-medium text-gray-700">İçerik
-                    <textarea
-                        // ... (değerler ve onChange)
-                        rows={10}
-                        className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors"
-                    />
-                </label>
+                {/* Hata Mesajı */}
+                {error && (
+                    <div className="bg-red-50 text-red-700 border border-red-200 p-3 rounded-lg mb-6">{error}</div>
+                )}
 
-                {/* Yayın Durumu Checkbox */}
-                <label className="flex items-center space-x-2 text-sm text-gray-700 pt-2">
-                    <input
-                        type="checkbox"
-                        // ... (checked ve onChange)
-                        className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                    />
-                    <span>Yayınla (Taslak için kapat)</span>
-                </label>
+                <form onSubmit={onSubmit} className="space-y-6">
+                    
+                    {/* Başlık Input */}
+                    <label className="block text-sm font-medium text-gray-700">Başlık
+                        <input
+                            type="text"
+                            value={title} // 🔥 Eklendi: title state'ini input'a bağla
+                            onChange={(e) => setTitle(e.target.value)} // 🔥 Eklendi: title state'ini güncelle
+                            required
+                            className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors"
+                            placeholder="Başlık giriniz"
+                        />
+                    </label>
 
-                {/* Kaydet Butonu */}
-                <button
-                    type="submit"
-                    disabled={busy}
-                    className="w-full py-3 mt-6 bg-primary-600 text-white font-semibold rounded-lg shadow-md hover:bg-primary-700 transition duration-150 disabled:bg-primary-400"
-                >
-                    {busy ? "Kaydediliyor…" : editing ? "Güncelle" : "Yayınla"}
-                </button>
-            </form>
+                    {/* İçerik Textarea */}
+                    <label className="block text-sm font-medium text-gray-700">İçerik
+                        <textarea
+                            value={content} // 🔥 Eklendi: content state'ini textarea'ya bağla
+                            onChange={(e) => setContent(e.target.value)} // 🔥 Eklendi: content state'ini güncelle
+                            required
+                            rows={10}
+                            className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors"
+                            placeholder="Yazı içeriğini buraya giriniz"
+                        />
+                    </label>
+
+                    {/* Yayın Durumu Checkbox */}
+                    <label className="flex items-center space-x-2 text-sm text-gray-700 pt-2">
+                        <input
+                            type="checkbox"
+                            checked={isPublished} // 🔥 Eklendi: isPublished state'ini bağla
+                            onChange={(e) => setIsPublished(e.target.checked)} // 🔥 Eklendi: state'i güncelle
+                            className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        />
+                        <span>Yayınla (Taslak için kapat)</span>
+                    </label>
+
+                    {/* Kaydet Butonu */}
+                    <button
+                        type="submit"
+                        disabled={busy}
+                        className="w-full py-3 mt-6 bg-primary-600 text-white font-semibold rounded-lg shadow-md hover:bg-primary-700 transition duration-150 disabled:bg-primary-400"
+                    >
+                        {busy ? "Kaydediliyor…" : editing ? "Güncelle" : "Yayınla"}
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
-);
+    );
 };
 
 export default PostEditPage; // Bileşeni dışa aktar, router'da kullanılacak
