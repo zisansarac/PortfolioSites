@@ -48,7 +48,7 @@ const HomePage: React.FC = () => {
 
     // Yükleme Durumu
     if (loading) {
-        return <div style={{ padding: 20 }}>Yazılar yükleniyor...</div>;
+        return <div style={{ padding: 20 }}>Loading...</div>;
     }
 
     // Hata Durumu
@@ -84,7 +84,7 @@ const HomePage: React.FC = () => {
                         <>
                             <Link to="/profile" className="text-gray-600 hover:text-sky-950 font-bold transition-colors">My Profile</Link>
                             <Link to="/posts/new" className="px-4 py-2 bg-gray-100 text-gray-900 font-bold rounded-full hover:bg-gray-200 transition-colors">New Portfolio</Link>
-                            <button onClick={logout} className="text-red-600 font-bold hover:text-red-800">Çıkış Yap</button>
+                            <button onClick={logout} className="text-red-600 font-bold hover:text-red-800">Log Out</button>
                         </>
                     ) : (
                         <>
@@ -184,15 +184,12 @@ const HomePage: React.FC = () => {
                                         For more →
                                     </Link>
                                 </div>
-
-                                
-
-                                
+       
                             ))
                         ) : (
                             // Boş yazı durumu için dinamik col-span kullanıldı
                             <div className={`${emptyStateColSpan} text-center py-10 text-gray-600`}>
-                                Henüz yayınlanmış bir portföy yazısı bulunmamaktadır.
+                                There is no published content.
                             </div>
                         )}
                     </div>
