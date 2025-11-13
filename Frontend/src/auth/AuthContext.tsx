@@ -15,7 +15,9 @@ type AuthContextType = {
   userId: string | null;
   login: (token: string, user: User) => void;
   logout: () => void;
+  updateUser: (updatedUser: User) => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,6 +72,7 @@ function isJwtExpired(token: string | null): boolean {
 export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // İlk yüklemede localStorage'dan oku (SSR guard)
   useEffect(() => {
@@ -86,6 +89,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
         if (u) setUser(JSON.parse(u));
       }
     }
+    setIsLoading(false);
   }, []);
 
   // Sekmeler arası senkronizasyon
@@ -130,6 +134,13 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   
   const userId = useMemo(() => getJwtSub(token), [token]);
 
+  const updateUser = (updatedUser: User) => {
+     setUser(updatedUser);
+   if (typeof window !== "undefined") {
+     localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+ };
+
  
   const login = (t: string, u: User) => {
     setToken(t);
@@ -153,7 +164,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
 
  return (
-    <AuthContext.Provider value={{ user, token, userId, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, token, userId, login, logout, isAuthenticated, isLoading, updateUser}}>
       {children}
     </AuthContext.Provider>
   );

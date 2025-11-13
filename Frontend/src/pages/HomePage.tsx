@@ -12,6 +12,13 @@ type Post = {
     slug: string;
     content: string;
     createdAt: string;
+    author: PostAuthor;
+};
+
+type PostAuthor = {
+    authorFullName: string | null;
+    avatarUrl: string | null; // Base64 veya URL
+    // Ek olarak id veya email de olabilir
 };
 
 const HomePage: React.FC = () => {
@@ -100,12 +107,32 @@ const HomePage: React.FC = () => {
                         
                         <h2 className="text-xl font-bold mb-5 text-gray-800 border-b pb-3">My Profile</h2>
                         
-                        {/* Avatar / Baş Harf */}
+                        {/* 🌟 GÜNCELLENMİŞ AVATAR BLOĞU 🌟 */}
                         <div className="text-center">
-                           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold mx-auto mb-2">
+                            {user?.avatarUrl ? (
+                                <img
+                                    src={user.avatarUrl}
+                                    alt="Profil Resmi"
+                                    // Resim yüklenemezse veya geçersizse baş harflere geri dönülür
+                                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                        e.currentTarget.style.display = 'none'; // Resmi gizle
+                                        const initialsDiv = e.currentTarget.nextElementSibling; // Baş harf div'ini bul
+                                        if (initialsDiv instanceof HTMLElement) {
+                                            initialsDiv.style.display = 'flex'; // Baş harf div'ini göster
+                                        }
+                                    }}
+                                    className="w-16 h-16 rounded-full object-cover mx-auto mb-2 border-2 border-sky-800"
+                                />
+                            ) : null}
+
+                            {/* Baş Harf/Varsayılan İkon (Avatar yoksa veya yüklenemezse gösterilir) */}
+                            <div 
+                                style={{ display: user?.avatarUrl ? 'none' : 'flex' }} // Avatar varsa başlangıçta gizle
+                                className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold mx-auto mb-2 text-gray-600"
+                            >
                                 {/* Kullanıcının baş harflerini gösterir */}
-                                {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('') : 'U'}
-                           </div>
+                                {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
+                            </div>
                         </div>
 
                         <p className="text-center text-xl font-bold text-gray-800 mb-1">{user?.fullName}</p>
@@ -135,6 +162,7 @@ const HomePage: React.FC = () => {
                         
                         {posts.length > 0 ? (
                             posts.map(post => (
+
                                 <div 
                                     key={post.id} 
                                     className="p-6 bg-white border border-gray-100 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-0.5"
@@ -156,6 +184,10 @@ const HomePage: React.FC = () => {
                                         For more →
                                     </Link>
                                 </div>
+
+                                
+
+                                
                             ))
                         ) : (
                             // Boş yazı durumu için dinamik col-span kullanıldı

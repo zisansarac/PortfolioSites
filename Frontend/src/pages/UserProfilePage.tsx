@@ -2,59 +2,57 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/UserProfilePage.tsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { useAuth } from "../auth/AuthContext";
 
 // Backend'den dönen tüm User alanlarını içeren tip
 type UserProfile = {
-    fullName: string | null;
-    avatarUrl: string | null;
-    bio: string | null;
-    email: string;
+  fullName: string | null;
+  // avatarUrl, artık Base64 string veya URL tutabilir
+  avatarUrl: string | null;
+  bio: string | null;
+  email: string;
 };
 
 const UserProfilePage: React.FC = () => {
-    const { isAuthenticated, user, login } = useAuth();
+    // 💡 updateUser'ı AuthContext'ten almayı unutmayın
+    const { isAuthenticated, user, login, updateUser } = useAuth();
     const navigate = useNavigate();
 
+    // Dosya inputuna referans (UI'daki daireye tıklayınca dosya seçimi için)
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     // Form alanları için yerel state'ler
+    // Not: user objesi null ise, bu state'ler ilk render'da boş başlar.
+    // fetchUserProfile çağrısı bu state'leri backend verileriyle güncelleyecektir.
     const [fullName, setFullName] = useState(user?.fullName || "");
     const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
     const [bio, setBio] = useState(user?.bio || "");
     
     // Yüklenme/Hata state'leri
     const [loading, setLoading] = useState(false); // Form gönderme yüklenmesi
-    
-    // 🔥 YENİ DURUM: Profil verisini çekerken yüklenme durumu
-    // Başlangıçta TRUE, çünkü AuthContext'in token kontrolü bitene kadar beklememiz gerek.
     const [isFetchingProfile, setIsFetchingProfile] = useState(true); 
 
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [updateSuccess, setUpdateSuccess] = useState(false);
 
-    // -----------------------------------------------------------------
-    // 🔥 KRİTİK DÜZELTME: Yönlendirme ve AuthContext Senkronizasyonu
+    // Yönlendirme ve AuthContext Senkronizasyonu
     useEffect(() => {
         const token = localStorage.getItem('token');
         
-        // 1. Eğer token varsa, yüklenme bitene kadar (isFetchingProfile=false) hiçbir şey yapma.
-        // Bu, AuthContext'in tokenı okuyup isAuthenticated'ı TRUE yapmasına zaman tanır.
         if (token && isFetchingProfile) {
             return;
         }
 
-        // 2. Yükleme bittiğinde (isFetchingProfile=false) veya token olmadığında kontrol et:
-        if (!isAuthenticated && !token) {
+        if (!isAuthenticated && !token && !isFetchingProfile) {
             navigate("/login");
         }
-        
-    }, [isAuthenticated, navigate, isFetchingProfile]); // isFetchingProfile eklendi
-    // -----------------------------------------------------------------
-
+    }, [isAuthenticated, navigate, isFetchingProfile]); 
 
     // Eğer AuthContext'teki veriler değişirse formu güncelle
+    // Bu, Home Page'den gelindiğinde veya başarılı güncellemelerden sonra formun dolmasını sağlar.
     useEffect(() => {
         if (user) {
             setFullName(user.fullName || "");
@@ -66,36 +64,91 @@ const UserProfilePage: React.FC = () => {
     // Opsiyonel: Backend'den en güncel profil verisini çekme (GET /api/users/me)
     const fetchUserProfile = async () => {
         setFetchError(null);
-        setIsFetchingProfile(true); // Veri çekmeye başla
+        setIsFetchingProfile(true);
         try {
             const res = await api.get<UserProfile>("/api/users/me");
             const updatedUser = res.data;
             
+            // 1. Form state'lerini güncelle (bu sayfanın kendisi için)
             setFullName(updatedUser.fullName || "");
             setAvatarUrl(updatedUser.avatarUrl || "");
             setBio(updatedUser.bio || "");
             
+            // 🚀 KRİTİK EKLENTİ: AuthContext'i backend'den gelen en güncel verilerle güncelle.
+            // Bu, HomePage'deki kartın login sonrası ve /profile'a her gelindiğinde 
+            // güncel veriyi görmesini sağlar.
+            if (updateUser) {
+                updateUser({ 
+                    email: updatedUser.email, 
+                    fullName: updatedUser.fullName, 
+                    avatarUrl: updatedUser.avatarUrl, 
+                    bio: updatedUser.bio 
+                });
+            }
+
         } catch (err: any) {
-             setFetchError("Profil bilgileri çekilemedi.");
+            setFetchError("Profil bilgileri çekilemedi.");
         } finally {
-            setIsFetchingProfile(false); // Veri çekme bitti
+            setIsFetchingProfile(false);
         }
     };
 
-    // Component yüklendiğinde ve isAuthenticated True olduğunda profili çek
+    // Component yüklendiğinde ve token mevcutsa profili çek
     useEffect(() => {
-        if (isAuthenticated) {
-            // Sadece AuthContext başarılı bir şekilde giriş yaptığında veriyi çek
+        const token = localStorage.getItem('token');
+        if (isAuthenticated || token) {
             fetchUserProfile();
         } else {
-            // Eğer isAuthenticated false ise (ve token yoksa) yüklemeyi bitir.
-            // (Token varsa, zaten üstteki useEffect'te True olmasını bekliyoruz)
-            if (!localStorage.getItem('token')) {
-                 setIsFetchingProfile(false);
-            }
+            setIsFetchingProfile(false); 
         }
-    }, [isAuthenticated]); 
+    }, [isAuthenticated]); // isAuthenticated değiştiğinde tetiklenir
 
+    // --- YENİ: Dosya Seçimi ve Base64 Dönüşümü ---
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        
+        if (file) {
+            // Sadece resim dosyalarını kabul et
+            if (!file.type.startsWith('image/')) {
+                setFetchError("Lütfen sadece bir resim dosyası seçin (JPG, PNG, vb.).");
+                setAvatarUrl('');
+                return;
+            }
+            
+            // Büyük dosyaları engelle (Örnek: 5MB sınırı)
+            if (file.size > 5 * 1024 * 1024) {
+                setFetchError("Resim boyutu 5MB'ı aşmamalıdır.");
+                setAvatarUrl('');
+                return;
+            }
+
+            setFetchError(null);
+            const reader = new FileReader();
+            
+            reader.onloadstart = () => setLoading(true); // Dosya okuma başlarken loading
+            
+            reader.onloadend = () => {
+                // Base64 string'ini avatarUrl olarak kullan
+                setAvatarUrl(reader.result as string);
+                setLoading(false); // Dosya okuma bitti
+            };
+            
+            reader.onerror = () => {
+                setFetchError("Dosya okuma hatası.");
+                setLoading(false);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // --- YENİ: Avatarı Temizleme ---
+    const clearAvatar = () => {
+        setAvatarUrl("");
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""; // File input değerini sıfırla
+        }
+    };
 
     // --- Form Gönderme: PUT /api/users/me ---
     const onSubmit = async (e: React.FormEvent) => {
@@ -106,16 +159,17 @@ const UserProfilePage: React.FC = () => {
 
         const updateData = {
             fullName: fullName,
-            avatarUrl: avatarUrl, 
-            bio: bio, 
+            // Base64 verisi veya boş string gönderilecek
+            avatarUrl: avatarUrl || null,
+            bio: bio || null,
         };
         
-
         try {
             await api.put("/api/users/me", updateData);
 
-            if (user && login) {
-                login(localStorage.getItem('token')!, {
+            if (user && updateUser) {
+                // 🚀 KRİTİK EKLENTİ: Auth Context'i güncel verilerle yenile
+                updateUser({
                     email: user.email,
                     fullName: updateData.fullName,
                     avatarUrl: updateData.avatarUrl,
@@ -125,66 +179,110 @@ const UserProfilePage: React.FC = () => {
             
             setUpdateSuccess(true);
         } catch (err: any) {
-            setFetchError(err.response?.data?.message || "Profil güncellenemedi.");
+            setFetchError(err.response?.data?.message || "Profil güncellenemedi. Lütfen tekrar deneyin.");
         } finally {
             setLoading(false); // Form gönderme yüklenmesi bitti
         }
     };
 
-    // Avatar Önizlemesi Bileşeni
-    const AvatarDisplay = () => {
-        const avatarPreviewClass = "w-24 h-24 rounded-full object-cover border-2 border-[#888f9c] mb-4";
-        const defaultAvatarClass = "w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-4xl text-gray-500 mb-4";
+    // --- Avatar Önizlemesi ve Yükleme Mekanizması ---
+    const AvatarUploadSection = () => {
+        const avatarPreviewClass = "w-28 h-28 rounded-full object-cover border-4 border-[#888f9c] transition duration-300 hover:border-[#4f46e5] group-hover:scale-105 cursor-pointer shadow-lg";
+        const defaultAvatarClass = "w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center text-4xl text-gray-500 transition duration-300 hover:bg-gray-300 group-hover:scale-105 cursor-pointer shadow-lg";
 
-        if (avatarUrl) {
-            return (
-                <img 
-                    src={avatarUrl} 
-                    alt="Profil Resmi Önizlemesi" 
-                    className={avatarPreviewClass}
-                    onError={(e) => { 
-                        e.currentTarget.style.display = 'none'; 
-                    }}
+        const handleClick = () => {
+             // Daireye tıklanınca gizli dosya seçme penceresini aç
+             fileInputRef.current?.click();
+        };
+
+        return (
+            <div className="flex flex-col items-center mb-8">
+                {/* 1. Gizli Dosya Inputu */}
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept="image/*"
                 />
-            );
-        }
-        return <div className={defaultAvatarClass}>👤</div>;
-    }
 
-    // --- YÜKLENİYOR EKRANI (PostEditPage'deki gibi) ---
-    // Eğer AuthContext tokenı kontrol ediyor VE/VEYA biz API'dan veriyi çekiyorsak
-    // Bu, hem Auth Context'in beklemesini hem de API'dan verinin gelmesini kapsar.
-    if (isFetchingProfile) {
-         return (
-            <div className="w-full max-w-xl mx-auto my-12 p-8 sm:p-12 bg-white rounded-xl shadow-2xl flex justify-center items-center h-64">
-                <p className="text-[#0f172a] text-lg font-medium">Profil bilgileri yükleniyor...</p>
+                {/* 2. Görsel Alanı (Tıklanabilir) */}
+                <div
+                    onClick={handleClick}
+                    className="relative group flex flex-col items-center justify-center"
+                >
+                    {avatarUrl ? (
+                        <img
+                            src={avatarUrl}
+                            alt="Profil Resmi Önizlemesi"
+                            className={avatarPreviewClass}
+                            // Resim yüklenemezse (örneğin Base64 hatası veya geçersiz URL)
+                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                // Hata durumunda default ikonu göster
+                                e.currentTarget.style.display = 'none';
+                                setAvatarUrl(''); // Base64'ü temizle, default icon çıksın
+                            }}
+                        />
+                    ) : (
+                        <div className={defaultAvatarClass}>
+                            {/* SVG Icon: Resim Ekleme */}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-600 group-hover:text-[#4f46e5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-4.5-4.5L9 19"/>
+                            </svg>
+                        </div>
+                    )}
+                    {/* Hover Efekti */}
+                    <div className="absolute inset-0 w-28 h-28 flex items-center justify-center bg-black bg-opacity-30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        <span className="text-white text-xs font-bold">Resmi Seç</span>
+                    </div>
+                </div>
+
+                {/* 3. Resmi Kaldır Butonu */}
+                {avatarUrl && (
+                    <button
+                        type="button"
+                        onClick={clearAvatar}
+                        className="mt-3 text-sm font-medium text-red-500 hover:text-red-700 transition-colors"
+                    >
+                        Resmi Kaldır
+                    </button>
+                )}
             </div>
         );
     }
     
-    // Yönlendirme, üstteki useEffect içinde yapıldığı için, buraya gelindiyse
-    // ve isAuthenticated false ise, bu bir hatadır (ama yine de koruma).
-    if (!isAuthenticated) return <div>Giriş Yapılmadı.</div>; 
+    // --- YÜKLENİYOR EKRANI ---
+    if (isFetchingProfile || loading) {
+          return (
+              <div className="w-full max-w-xl mx-auto my-12 p-8 sm:p-12 bg-white rounded-xl shadow-2xl flex justify-center items-center h-64">
+                  <p className="text-[#0f172a] text-lg font-medium">
+                      {loading ? "💾 Veriler Kaydediliyor..." : "👤 Profil bilgileri yükleniyor..."}
+                  </p>
+              </div>
+          );
+    }
+    
+    // Güvenlik: Eğer yetkilendirme yoksa
+    if (!isAuthenticated) return <div>Giriş Yapılmadı.</div>;
     
     return (
         <div className="w-full max-w-xl mx-auto my-12 p-8 sm:p-12 bg-white rounded-xl shadow-2xl transition-all duration-300">
-            {/* ... (Başlıklar, Form ve diğer içerikler) ... */}
             <h1 className="text-[#111318] text-3xl font-black leading-tight tracking-[-0.033em] mb-6 border-b pb-4">
                 👤 Profil Bilgilerini Güncelle
             </h1>
             
+            {/* Hata Mesajları */}
             {fetchError && (
                 <div className="text-sm text-red-600 bg-red-100 p-3 rounded-lg border border-red-300 mb-4">
                     {fetchError}
                 </div>
             )}
-
-            <div className="flex flex-col items-center mb-6">
-                <AvatarDisplay />
-            </div>
             
-            <p className="text-[#444e63] text-base font-medium mb-6">
-                <strong>E-posta:</strong> {user?.email} 
+            {/* Avatar Yükleme Alanı */}
+            <AvatarUploadSection />
+
+            <p className="text-[#444e63] text-base font-medium mb-6 border-t pt-4">
+                <strong>E-posta:</strong> {user?.email}
             </p>
             
             <form onSubmit={onSubmit} className="flex w-full flex-col gap-4">
@@ -197,34 +295,21 @@ const UserProfilePage: React.FC = () => {
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         required
-                        className="form-input flex w-full h-12 p-[15px] bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-[#0f172a] focus:ring-2 focus:ring-[#0f172a]/20 text-base font-normal leading-normal outline-none transition-colors"
+                        className="form-input flex w-full h-12 p-[15px] bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 text-base font-normal leading-normal outline-none transition-colors"
                         placeholder="Adınızı ve Soyadınızı girin"
                     />
                 </label>
                 
-                {/* Avatar URL */}
-                <label className="flex flex-col">
-                    <p className="text-[#111318] text-base font-medium leading-normal pb-2">Avatar URL (Opsiyonel)</p>
-                    <input
-                        type="url"
-                        value={avatarUrl}
-                        onChange={(e) => setAvatarUrl(e.target.value)}
-                        className="form-input flex w-full h-12 p-[15px] bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-[#0f172a] focus:ring-2 focus:ring-[#0f172a]/20 text-base font-normal leading-normal outline-none transition-colors"
-                        placeholder="Profil fotoğrafı linki"
-                    />
-                    <small className="text-[#444e63] text-sm font-light leading-normal mt-1">Temizlemek/kaldırmak için alanı boş bırakıp kaydedin.</small>
-                </label>
-
                 {/* Biyo (Bio) */}
                 <label className="flex flex-col">
                     <p className="text-[#111318] text-base font-medium leading-normal pb-2">Biyo (Opsiyonel)</p>
                     <textarea
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
-                        className="form-input flex w-full p-[15px] bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-[#0f172a] focus:ring-2 focus:ring-[#0f172a]/20 text-base font-normal leading-normal outline-none transition-colors min-h-[100px] resize-y"
+                        className="form-input flex w-full p-[15px] bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/20 text-base font-normal leading-normal outline-none transition-colors min-h-[100px] resize-y"
                         placeholder="Kendiniz hakkında kısa bir şeyler yazın"
                     />
-                    <small className="text-[#444e63] text-sm font-light leading-normal mt-1">Temizlemek/kaldırmak için alanı boş bırakıp kaydedin.</small>
+                    <small className="text-[#444e63] text-sm font-light leading-normal mt-1">Bu alan profilinizde diğer kullanıcılara gösterilecektir.</small>
                 </label>
                 
                 
@@ -238,7 +323,7 @@ const UserProfilePage: React.FC = () => {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="mt-4 flex h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#0f172a] text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#0f172a]/90 transition-colors duration-200 disabled:bg-[#0f172a]/50"
+                    className="mt-4 flex h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#4f46e5] text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#4f46e5]/90 transition-colors duration-200 disabled:bg-[#4f46e5]/50 shadow-md hover:shadow-lg"
                 >
                     <span className="truncate">{loading ? "💾 Kaydediliyor..." : "Profili Güncelle"}</span>
                 </button>
