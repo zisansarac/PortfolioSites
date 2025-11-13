@@ -103,7 +103,7 @@ const PostDetailPage:React.FC = () => {
                                     // post.avatarUrl'ı kullanıyoruz
                                     src={currentAvatarUrl} 
                                     alt={post.authorFullName || 'Yazar'} 
-                                    className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md"
+                                    className="w-20 h-20 rounded-full object-cover border-3 border-cyan-900 shadow-md"
                                     // Resim yüklenemezse veya geçersizse:
                                     onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                                         e.currentTarget.style.display = 'none'; // Resmi gizle
@@ -124,22 +124,27 @@ const PostDetailPage:React.FC = () => {
                                 {initials}
                             </div>
                         </div>
-                        
+
                         {/* Başlık ve Yazar Adı */}
                         <div>
-                            <h1 className="text-3xl font-extrabold text-[#111318] leading-snug">
+                            <Link to={`/users/${post.authorId}`}>
+
+                            <h1 className="text-3xl font-bold text-[#111318] leading-snug hover:text-sky-800">
                                 {post.authorFullName ?? post.authorEmail}
                                 
                             </h1>
+                            
+                            </Link>
+                            
                             <p className="text-lg text-black font-bold mt-1">
                                 {post.title}
                             </p>
                             <span className="inline-block text-sm text-gray-500 mt-2">
-                                Yayınlanma: {new Date(post.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                Published At: {new Date(post.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'numeric', year: 'numeric' })}
                             </span>
                             {!post.isPublished && (
                                 <span className="ml-3 bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
-                                    Taslak
+                                    Draft
                                 </span>
                             )}
                         </div>
@@ -158,7 +163,7 @@ const PostDetailPage:React.FC = () => {
                                 </Link>
                                 <button 
                                     onClick={onDelete} 
-                                    className="py-2 px-4 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-500 transition-colors border border-red-200"
+                                    className="py-2 px-4 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-500 transition-colors border border-red-600"
                                 >
                                     Delete
                                 </button>
@@ -168,7 +173,7 @@ const PostDetailPage:React.FC = () => {
                                 to="/" 
                                 className="py-2 px-4 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
                             >
-                                ← Listeye Dön
+                                ← Back to home
                             </Link>
                         )}
                     </div>

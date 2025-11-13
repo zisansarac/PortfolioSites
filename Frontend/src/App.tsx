@@ -7,6 +7,7 @@ import PrivateRoute from "./auth/PrivateRoute";
 import UserProfilePage from "./pages/UserProfilePage";
 import PostEditPage from "./pages/PostEditPage";
 import PostDetailPage from "./pages/PostDetailPage";
+import UserPublicProfilePage from "./pages/UserPublicProfilePage";
 
 
 
@@ -21,6 +22,7 @@ const App: React.FC = () => {
       <Route path="/login" element={<LoginPage/>}></Route>
       <Route path="/register" element={<RegisterPage/>}></Route>
       <Route path="*" element={<Navigate to="/" replace></Navigate>}></Route>
+      <Route path="/users/:authorId" element={<UserPublicProfilePage />} />
     </Routes>
   );
 };

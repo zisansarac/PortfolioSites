@@ -11,6 +11,10 @@ type Post = {
     content: string;
     createdAt: string;
     author: string;
+    authorFullName: string | null; 
+    authorEmail: string | null;  
+    authorAvatarUrl: string | null; 
+    authorId : string;
 };
 
 type UserProfile = {
@@ -192,15 +196,63 @@ const HomePage: React.FC = () => {
                     </h2>
 
                     {/* 🔥 YAZI LİSTESİ GRID KONTEYNERİ (Dinamik Sütun Sayısı) 🔥 */}
-                    <div className={`grid grid-cols-1 sm:grid-cols-2 ${postGridCols} gap-8`}>
+                    <div className={`grid grid-cols-1 sm:grid-cols-2 ${postGridCols} gap-2`}>
                         
                         {posts.length > 0 ? (
-                            posts.map(post => (
+                            posts.map(post => {
+                                const initials = post.authorFullName 
+                                    ? post.authorFullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
+                                    : (post.authorEmail || 'U')[0].toUpperCase();
 
+                                const profileLink = `/users/${post.authorId}`;
+
+                               return(
                                 <div 
                                     key={post.id} 
                                     className="p-6 bg-white border border-gray-100 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-0.5"
                                 >
+                                    <div className="flex items-center gap-3 mb-4">
+                                            
+                                            <div className="shrink-0 relative">
+                                                {/* Avatar Resmi */}
+                                                {post.authorAvatarUrl ? (
+                                                    <img 
+                                                        src={post.authorAvatarUrl}
+                                                        alt={post.authorFullName || 'Yazar'} 
+                                                        className="w-8 h-8 rounded-full object-cover border border-sky-900"
+                                                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                                            e.currentTarget.style.display = 'none'; 
+                                                            const initialsDiv = e.currentTarget.nextElementSibling; 
+                                                            if (initialsDiv instanceof HTMLElement) { initialsDiv.style.display = 'flex'; }
+                                                        }}
+                                                    />
+                                                ) : null}
+
+                                                {/* Baş Harf/Varsayılan İkon */}
+                                                <div 
+                                                    style={{ display: post.authorAvatarUrl ? 'none' : 'flex' }}
+                                                    className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600"
+                                                >
+                                                    {initials}
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Yazar Adı */}
+                                            {/* Yazar Adı: profileLink kullanıldı */}
+                                            {/* Eğer yazar ID'si yoksa Link yerine sadece Span kullanabilirsiniz */}
+                                            {post.authorId ? (
+                                                <Link to={profileLink} className="text-sm font-semibold text-gray-800 truncate hover:text-cyan-700 transition-colors">
+                                                    {post.authorFullName || post.authorEmail}
+                                                </Link>
+                                            ) : (
+                                                <span className="text-sm font-semibold text-gray-800 truncate">
+                                                    {post.authorFullName || post.authorEmail}
+                                                </span>
+                                            )}
+                                            
+                                        </div>
+                                    
+
                                     <Link to={`/posts/${post.slug}`} className="block">
                                         <h3 className="text-xl font-bold text-gray-900 hover:text-sky-950 mb-3 transition-colors line-clamp-2">
                                             {post.title}
@@ -219,7 +271,8 @@ const HomePage: React.FC = () => {
                                     </Link>
                                 </div>
        
-                            ))
+                            ); 
+                        })
                         ) : (
                             // Boş yazı durumu için dinamik col-span kullanıldı
                             <div className={`${emptyStateColSpan} text-center py-10 text-gray-600`}>

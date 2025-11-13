@@ -58,7 +58,7 @@ public class UsersController : ControllerBase
         return Ok(response);
     }
 
-    
+
     [HttpPut("me")]
     public async Task<IActionResult> UpdateCurrentUserProfile([FromBody] UpdateUserProfileRequest request)
     {
@@ -73,30 +73,59 @@ public class UsersController : ControllerBase
         {
             return NotFound(new { message = "Kullanıcı bulunamadı." });
         }
-        
-        
+
+
         if (request.FullName != null)
         {
             user.FullName = request.FullName;
         }
-        
-        if (request.AvatarUrl != null) 
+
+        if (request.AvatarUrl != null)
         {
             user.AvatarUrl = request.AvatarUrl;
         }
-        if (request.Bio != null) 
+        if (request.Bio != null)
         {
             user.Bio = request.Bio;
         }
-        
+
 
         var result = await _userManager.UpdateAsync(user);
 
         if (!result.Succeeded)
         {
-             return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+            return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
         }
 
-        return NoContent(); 
+        return NoContent();
+    }
+
+    [HttpGet("{id}")]
+    [AllowAnonymous] // Herkesin görmesi için (Anonim kullanıcılar dahil)
+    public async Task<IActionResult> GetPublicUserProfile(string id)
+    {
+        if (!Guid.TryParse(id, out var userId) || userId == Guid.Empty)
+        {
+            return BadRequest(new { message = "Geçersiz kullanıcı ID formatı." });
+        }
+
+        var user = await _userManager.FindByIdAsync(id);
+
+        if (user == null)
+        {
+            return NotFound(new { message = "Kullanıcı bulunamadı." });
+        }
+        
+        // Sadece herkese açık bilgileri döndürüyoruz
+        var response = new UserPublicProfileResponse 
+        {
+            Id = user.Id,
+            Email = user.Email, // Email de genellikle gösterilir
+            FullName = user.FullName,
+            AvatarUrl = user.AvatarUrl,
+            Bio = user.Bio
+        };
+
+        return Ok(response);
     }
 }
