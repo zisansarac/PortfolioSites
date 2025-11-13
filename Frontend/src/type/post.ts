@@ -9,7 +9,7 @@ export type PostItem = {
     authorId: string;
     authorEmail?:string | null;
     authorFullName?:string | null;
-    avatarUrl?:string | null;
+    authorAvatarUrl?:string | null;
 }
 
 export type PostCreateRequest = {

@@ -34,6 +34,7 @@ public class PostResponse
     public string AuthorId { get; set; } = default!;
     public string? AuthorEmail { get; set; }
     public string? AuthorFullName { get; set; }
+    public string? AuthorAvatarUrl { get; set; }
 
    
 }

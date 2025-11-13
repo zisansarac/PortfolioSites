@@ -11,7 +11,7 @@ const PostDetailPage:React.FC = () => {
     const [post, setPost] = useState<PostItem | null>(null);
     const [loading, setLoading] = useState(true);
     // useAuth hook'unuzun userId döndürdüğünü varsayıyoruz.
-    const { userId } = useAuth() as any; 
+    const { userId, user } = useAuth() as any; 
     const navigate = useNavigate();
 
     // 🎯 Veri Çekme (fetch)
@@ -31,10 +31,10 @@ const PostDetailPage:React.FC = () => {
         run();
     },[slug]);
 
-    // 🎯 Yetki Kontrolü
+    //  Yetki Kontrolü
     const mine = !!(userId && post && userId === post.authorId);
 
-    // 🎯 Silme İşlemi
+    //  Silme İşlemi
     const onDelete = async () => {
         if(!post)return;
         if(!confirm("Bu yazıyı silmek istediğine emin misin?"))return;
@@ -47,7 +47,7 @@ const PostDetailPage:React.FC = () => {
         }
     };
 
-    // ------------------------------ RENDER KISMI ------------------------------
+    // ------------------ RENDER KISMI ------------------------------
 
     // Yüklenme Durumu
     if(loading)
@@ -64,6 +64,25 @@ const PostDetailPage:React.FC = () => {
             </div>
         );
 
+        let currentAvatarUrl: string | null = null;
+
+        if (mine) {
+        // Eğer post bize aitse: AuthContext'ten gelen en güncel veriyi kullan.
+        // Bu, profil sayfasında kaydeder kaydetmez güncel avatarı gösterir.
+        currentAvatarUrl = user?.avatarUrl || null; 
+    } else {
+        // Eğer post başkasına aitse: Backend'den post verisiyle birlikte gelen avatarı kullan.
+        // (Backend'in bu alanı döndürdüğünü varsayıyoruz)
+        // Eğer PostItem tipinizde 'avatarUrl' değil 'authorAvatarUrl' varsa onu kullanın:
+        currentAvatarUrl = (post as any)?.authorAvatarUrl || null; 
+    }
+
+       
+
+    const initials = post.authorFullName 
+        ? post.authorFullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
+        : (post.authorEmail || 'U')[0].toUpperCase();
+
     // Detay Sayfası
     return(
         // Ana Konteyner: Daha geniş ve ortalanmış
@@ -76,11 +95,35 @@ const PostDetailPage:React.FC = () => {
                     {/* Yazar Bilgisi ve Başlık */}
                     <div className="flex items-start gap-4">
                         {/* Avatar / Yazarın Fotoğrafı (Postta yoksa varsayılan) */}
-                        <img 
-                            src={post.avatarUrl || "https://i.pravatar.cc/150?img=1"} // Varsayılan görsel
-                            alt={post.authorFullName || 'Yazar'} 
-                            className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md"
-                        />
+                        <div className="relative flex-shrink-0">
+                            
+                            {/* Avatar Resmi */}
+                            {currentAvatarUrl ? (
+                                <img 
+                                    // post.avatarUrl'ı kullanıyoruz
+                                    src={currentAvatarUrl} 
+                                    alt={post.authorFullName || 'Yazar'} 
+                                    className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md"
+                                    // Resim yüklenemezse veya geçersizse:
+                                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                        e.currentTarget.style.display = 'none'; // Resmi gizle
+                                        const initialsDiv = e.currentTarget.nextElementSibling; // Baş harf div'ini bul
+                                        if (initialsDiv instanceof HTMLElement) {
+                                            initialsDiv.style.display = 'flex'; // Baş harf div'ini göster
+                                        }
+                                    }}
+                                />
+                            ) : null}
+
+                            {/* Baş Harf/Varsayılan İkon */}
+                            <div 
+                                // Avatar URL'si yoksa veya yüklenemezse gösterilir (onError ile değiştirilebilir)
+                                style={{ display: currentAvatarUrl ? 'none' : 'flex' }}
+                                className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-600 shadow-md"
+                            >
+                                {initials}
+                            </div>
+                        </div>
                         
                         {/* Başlık ve Yazar Adı */}
                         <div>

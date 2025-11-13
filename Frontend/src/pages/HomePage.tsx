@@ -1,11 +1,9 @@
-// src/pages/HomePage.tsx
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import api from '../lib/api';
 
-// Tanım: Backend'den dönen Post tipi
+// Backend'den dönen Post tipi
 type Post = {
     id: number;
     title: string;
@@ -15,15 +13,20 @@ type Post = {
     author: string;
 };
 
-
+type UserProfile = {
+    fullName: string | null;
+    avatarUrl: string | null;
+    bio: string | null;
+    email: string;
+};
 
 const HomePage: React.FC = () => {
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated, user, logout, updateUser } = useAuth();
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // 🎯 Postları Çekme Fonksiyonu (GET /api/posts)
+    // Postları Çekme Fonksiyonu (GET /api/posts)
     useEffect(() => {
         const fetchPosts = async () => {
             try {
@@ -42,6 +45,41 @@ const HomePage: React.FC = () => {
         fetchPosts();
     }, []);
 
+    const fetchUserProfile = async () => {
+        // Zaten avatarUrl veya bio varsa, tekrar çekmeye gerek yok (performans için)
+        if (user && (user.avatarUrl || user.bio)) {
+            return;
+        }
+
+        try {
+            const res = await api.get<UserProfile>("/api/users/me");
+            const updatedUser = res.data;
+            
+            // AuthContext'i backend'den gelen en güncel verilerle güncelle.
+            if (updateUser) {
+                updateUser({ 
+                    email: updatedUser.email, 
+                    fullName: updatedUser.fullName, 
+                    avatarUrl: updatedUser.avatarUrl, 
+                    bio: updatedUser.bio 
+                });
+            }
+        } catch (err) {
+            console.error("Home Page'de profil bilgisi çekilemedi:", err);
+            // Hata olsa bile, AuthContext'i bozmayız.
+        }
+    };
+
+    useEffect(() => {
+        // Kullanıcı giriş yaptıysa ve avatar/bio bilgileri eksikse profil bilgilerini çek.
+        // Bu, login sonrası veya sayfa yenileme sonrası AuthContext'in tam doldurulmasını sağlar.
+        if (isAuthenticated && user && !user.avatarUrl && !user.bio) {
+             // Sadece avatar ve bio boşsa çekimi tetikle.
+             // Diğer alanlar (email, id, fullName) zaten login sırasında gelmiş olmalı.
+            fetchUserProfile();
+        }
+    }, [isAuthenticated, user]); // user objesi değiştiğinde tetiklenir
+
     // Yükleme Durumu
     if (loading) {
         return <div style={{ padding: 20 }}>Loading...</div>;
@@ -52,7 +90,7 @@ const HomePage: React.FC = () => {
         return <div style={{ padding: 20, color: 'crimson' }}>{error}</div>;
     }
 
-    // 🔥 Hesaplamalar:
+    // Hesaplamalar:
     // 1. Profil kartı için dinamik kaydırma stilini hesapla (hizalama için)
     const profileMarginTop = isAuthenticated ? { marginTop: '72px' } : {};
 
@@ -103,7 +141,7 @@ const HomePage: React.FC = () => {
                         
                         <h2 className="text-xl font-bold mb-5 text-gray-800 border-b pb-3">My Profile</h2>
                         
-                        {/* 🌟 GÜNCELLENMİŞ AVATAR BLOĞU 🌟 */}
+                        {/* AVATAR BLOĞU */}
                         <div className="text-center">
                             {user?.avatarUrl ? (
                                 <img

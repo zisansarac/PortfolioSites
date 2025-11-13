@@ -67,6 +67,7 @@ public class PostController : ControllerBase
             AuthorId = b.AuthorId.ToString(),
             AuthorEmail = b.Author?.Email,
             AuthorFullName = b.Author?.FullName,
+            AuthorAvatarUrl = b.Author?.AvatarUrl
         });
         return Ok(result);
 
@@ -99,7 +100,8 @@ public class PostController : ControllerBase
             UpdatedAt = b.UpdatedAt,
             AuthorId = b.AuthorId.ToString(),
             AuthorEmail = b.Author?.Email,
-            AuthorFullName = b.Author?.FullName
+            AuthorFullName = b.Author?.FullName,
+            AuthorAvatarUrl = b.Author?.AvatarUrl
         });
     }
 
