@@ -1,72 +1,64 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, Link } from "react-router-dom"; 
-
 import api from "../lib/api"; 
-
 import type { PostCreateRequest, PostItem, PostUpdateRequest } from "../type/post"; 
 
 type NavState = { post?: PostItem }; 
 
-
 const PostEditPage: React.FC = () => {
-  const { id } = useParams();               // URL'deki :id parametresini al (örneğin /blog/edit/12)
-  const { state } = useLocation() as { state: NavState }; // useLocation ile state üzerinden gelen post'u al
-  const navigate = useNavigate();           // navigate → sayfa yönlendirmesi için kullanılır
+  const { id } = useParams(); 
+  const { state } = useLocation() as { state: NavState }; 
+  const navigate = useNavigate();
 
-  const editing = !!id;                     // Eğer id varsa, düzenleme modundayız
-  const initial = state?.post;              // Eğer liste sayfasından "Düzenle" ile gelindiyse, post bilgisi state içindedir
+  const editing = !!id; 
+  const initial = state?.post;
+  const [title, setTitle] = useState(initial?.title ?? ""); 
+  const [content, setContent] = useState(initial?.content ?? "");  
+  const [isPublished, setIsPublished] = useState<boolean>(initial?.isPublished ?? true);
+  const [busy, setBusy] = useState(false);  
+  const [error, setError] = useState<string | null>(null); 
 
-  // Form alanlarını ve durum değişkenlerini tanımla
-  const [title, setTitle] = useState(initial?.title ?? "");              // Başlık input'u
-  const [content, setContent] = useState(initial?.content ?? "");        // İçerik textarea'sı
-  const [isPublished, setIsPublished] = useState<boolean>(initial?.isPusblished ?? true); // Yayın durumu
-  const [busy, setBusy] = useState(false);                               // API isteği sırasında butonu devre dışı bırakmak için
-  const [error, setError] = useState<string | null>(null);               // Hata mesajı
-
-  // Eğer kullanıcı doğrudan /blog/edit/:id adresine giderse (state yoksa), uyarı göster
+ 
   useEffect(() => {
     if (editing && !initial) {
       setError("Düzenleme için lütfen liste sayfasından 'Düzenle' ile gelin.");
     }
-  }, [editing, initial]); // sadece editing veya initial değişirse çalışır
+  }, [editing, initial]);
 
-  // Form gönderildiğinde çalışır (Yeni kayıt veya güncelleme)
+  
   const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();             // Formun sayfayı yenilemesini engeller
-    setBusy(true);                  // Butonu devre dışı yap
-    setError(null);                 // Önceki hataları temizle
-
+    e.preventDefault(); 
+    setBusy(true); 
+    setError(null); 
+    
     try {
-      if (editing) {                // ✏️ Düzenleme modu
-        const dto: PostUpdateRequest = { title, content, isPublished }; // Gönderilecek DTO
-        await api.put(`/api/posts/${id}`, dto); // PUT isteği ile API'ye güncelleme gönder
-        // slug değişmiş olabilir; yeni slug bilinmediği için detaya gitmek yerine ana sayfaya dön
+      if (editing) { 
+     
+        const dto: PostUpdateRequest = { title, content, isPublished}; 
+        await api.put(`/api/posts/${id}`, dto); 
         navigate("/");
-      } else {                      // 🆕 Yeni yazı oluşturma modu
-        const dto: PostCreateRequest = { title, content, isPublished }; // Yeni kayıt DTO'su
-        const res = await api.post("/api/posts", dto); // POST isteği gönder
-        // Backend CreatedAtAction ile yeni yazının slug’ını döner → detaya yönlendir
+      } else {                      
+      
+        const dto: PostCreateRequest = { title, content, isPublished};
+        const res = await api.post("/api/posts", dto); 
         navigate(`/posts/${res.data.slug}`);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {            // ❌ Hata durumunda
-      // Backend tarafında message veya errors dizisi olabilir → hangisi varsa göster
+    } catch (err: any) { 
       setError(
         err.response?.data?.message ||
           err.response?.data?.errors?.[0] ||
           "İşlem başarısız."
       );
     } finally {
-      setBusy(false);               // İstek tamamlanınca butonu tekrar aktif et
+      setBusy(false);
     }
   };
 
-  // ------------------------------ JSX (UI kısmı) ------------------------------
+ 
  return (
-        // Dış Konteyner
         <div className="flex items-start justify-center min-h-screen bg-background p-4 font-sans">
             
-            {/* Daha Geniş Kart */}
             <div className="w-full max-w-4xl bg-white p-8 mt-10 mb-10 rounded-2xl shadow-2xl border border-gray-100">
                 
                 {/* Başlık ve Geri Link */}
@@ -112,13 +104,12 @@ const PostEditPage: React.FC = () => {
 
                     {/* Yayın Durumu Checkbox */}
                     <label className="flex items-center space-x-2 text-sm text-gray-700 pt-2">
-                        <input
-                            type="checkbox"
-                            checked={isPublished}
-                            onChange={(e) => setIsPublished(e.target.checked)} 
-                            className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                        />
-                        <span>Draft</span>
+                    <input
+                       type="checkbox"
+                       checked={isPublished}
+                       onChange={(e) => setIsPublished(e.target.checked)} 
+                       className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
+                      <span>Uncheck to saving as draft</span>
                     </label>
 
                     {/* Kaydet Butonu */}
@@ -127,7 +118,7 @@ const PostEditPage: React.FC = () => {
                         disabled={busy}
                         className="w-full py-3 mt-6 bg-cyan-950 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-800 transition duration-150 disabled:bg-primary-400"
                     >
-                        {busy ? "Updating…" : editing ? "Update" : "Publish"}
+                        {busy ? "Saving…" : editing ? "Update" : "Publish"}
                     </button>
                 </form>
             </div>
@@ -135,4 +126,4 @@ const PostEditPage: React.FC = () => {
     );
 };
 
-export default PostEditPage; // Bileşeni dışa aktar, router'da kullanılacak
+export default PostEditPage; 

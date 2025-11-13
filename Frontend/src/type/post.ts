@@ -3,7 +3,7 @@ export type PostItem = {
     title: string;
     slug: string;
     content: string;
-    isPusblished: boolean;
+    isPublished: boolean;
     createdAt: string;
     updatedAt?: string | null;
     authorId: string;

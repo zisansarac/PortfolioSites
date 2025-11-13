@@ -12,14 +12,10 @@ type Post = {
     slug: string;
     content: string;
     createdAt: string;
-    author: PostAuthor;
+    author: string;
 };
 
-type PostAuthor = {
-    authorFullName: string | null;
-    avatarUrl: string | null; // Base64 veya URL
-    // Ek olarak id veya email de olabilir
-};
+
 
 const HomePage: React.FC = () => {
     const { isAuthenticated, user, logout } = useAuth();

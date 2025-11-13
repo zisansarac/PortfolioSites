@@ -56,19 +56,6 @@ function isJwtExpired(token: string | null): boolean {
 }
 
 
-// function decodeJwtSub(token: string | null): string | null {
-//   try {
-//     if (!token) return null; 
-//     const payload = token.split(".")[1]; 
-//     const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
-  
-//     return typeof json?.sub === "string" ? json.sub : null;
-//   } catch {
-//     return null;
-//   }
-// }
-
-
 export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
