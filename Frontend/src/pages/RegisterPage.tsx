@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 
 const RegisterPage: React.FC = () =>{
@@ -14,6 +16,7 @@ const RegisterPage: React.FC = () =>{
     const[password, setPassword]= useState("");
     const[loading,setLoading] = useState(false);
     const[error, setError] = useState<string | null>(null);
+     const [showPassword, setShowPassword] = useState(false);
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); 
@@ -50,21 +53,21 @@ const RegisterPage: React.FC = () =>{
                 <div className="flex w-full max-w-md flex-col items-center justify-center gap-6" >
                     <div className="flex w-full flex-col gap-3 text-center">
                                 <h1 className="text-[#111318] text-4xl font-black leading-tight tracking-[-0.033em]">
-                                    Yaratıcı Topluluğumuza Katılın
+                                    Join Us!
                                 </h1>
                                 <p className="text-[#444e63] text-base font-light leading-normal">
-                                    Portföyünüzü oluşturun ve çalışmalarınızı sergilemeye hemen başlayın.
+                                    Create your portfolio and start showcasing your work now.
                                 </p>
                             </div>
                             <form onSubmit={onSubmit} className="flex w-full flex-col gap-4">
                                 <label className="flex flex-col">
-                                    <p className="text-[#111318] text-base font-medium leading-normal pb-2">Tam Adınız</p>
+                                    <p className="text-[#111318] text-base font-medium leading-normal pb-2">Full Name</p>
                                     <input 
                                         type="text" 
                                         value={fullName} 
                                         onChange={e => setFullName(e.target.value)} 
                                         required 
-                                        placeholder="Örn: Sara Demir"
+                                        placeholder="Enter your full name"
                                         // Input stili referans ile uyumlu
                                         className="form-input flex w-full h-14 p-[15px]
                                         bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
@@ -72,30 +75,35 @@ const RegisterPage: React.FC = () =>{
                                 </label>
 
                                 <label className="flex flex-col">
-                                    <p className="text-[#111318] text-base font-medium leading-normal pb-2">E-posta</p>
+                                    <p className="text-[#111318] text-base font-medium leading-normal pb-2">Email Address</p>
                                     <input 
                                         type="email" 
                                         value={email} 
                                         onChange={e => setEmail(e.target.value)} 
                                         required 
-                                        placeholder="Örn: sara.demir@example.com"
+                                        placeholder="Enter your email address"
                                         className="form-input flex w-full h-14 p-[15px] bg-neutral-100 border border-[#888f9c]  rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
                                     />
                                 </label>
                                 <label className="flex flex-col">
-                                    <p className="text-[#111318] text-base font-medium leading-normal pb-2">Şifre</p>
+                                    <p className="text-[#111318] text-base font-medium leading-normal pb-2">Password</p>
                                     <div className="relative flex w-full flex-1 items-stretch">
                                         <input 
-                                            type="password" 
+                                            id="password"
+                                            type={showPassword ? "text" : "password"}
                                             value={password} 
                                             onChange={e => setPassword(e.target.value)} 
                                             required 
-                                            placeholder="Şifrenizi Girin"
+                                            placeholder="Enter your password"
                                             className="form-input flex w-full h-14 p-[15px] bg-neutral-100 border border-[#888f9c] rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/50 text-base font-normal leading-normal outline-none transition-colors"
                                         />
-                                        {/* Göz İkonu (Opsiyonel: Şifre Görünürlüğünü Değiştirme) */}
-                                        <button aria-label="Şifre Görünürlüğünü Aç/Kapa" className="text-[#4869a5] absolute inset-y-0 right-0 flex items-center justify-center pr-4" type="button">
-                                            <span className="material-symbols-outlined">visibility</span>
+                                        
+                                        <button aria-label="Şifre Görünürlüğünü Aç/Kapa" className="text-[#4869a5] absolute inset-y-0 right-0 flex items-center justify-center pr-4" 
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        type="button">
+                                            <span className="material-symbols-outlined">
+                                        {showPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
+                                    </span>
                                         </button>
                                     </div>
                                 </label>
@@ -107,14 +115,14 @@ const RegisterPage: React.FC = () =>{
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="mt-2 flex h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-cyan-950 text-blue-50 text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200 disabled:bg-primary/50"
+                                    className="mt-2 flex h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-cyan-950 text-blue-50 text-base font-bold leading-normal tracking-[0.015em] hover:bg-cyan-700/90 transition-colors duration-200 disabled:bg-primary/50"
                                 >
-                                    <span className="truncate">{loading ? "Oluşturuluyor..." : "Hesap Oluştur"}</span>
+                                    <span className="truncate">{loading ? "Creating..." : "Register"}</span>
                                 </button>
                             </form>
                             <p className="text-[#444e63] text-sm font-normal">
-                                Zaten bir hesabınız var mı?
-                                <Link to="/login" className="font-semibold text-primary hover:underline ml-1">Giriş Yap</Link>
+                                Already have one?
+                                <Link to="/login" className="font-semibold text-cyan-950 hover:underline hover:text-cyan-700 ml-1">Login</Link>
                             </p>
                 </div>
              </div>
