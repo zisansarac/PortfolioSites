@@ -4,3 +4,24 @@
   --color-mint-500: oklch(0.72 0.11 178);
   background-color: rgba(131, 177, 190, 0.548)
 }
+
+
+
+@font-face {
+ 
+  font-family: 'Raleway'; 
+  
+  src: url('./assets/fonts/Raleway-Regular.woff2') format('woff2'); 
+  
+  font-weight: 400; 
+  font-style: normal;
+  font-display: swap; 
+}
+
+@font-face {
+  font-family: 'Raleway';
+  src: url('./assets/fonts/Raleway-Bold.woff2') format('woff2');
+  font-weight: 700; 
+  font-style: normal;
+  font-display: swap;
+}

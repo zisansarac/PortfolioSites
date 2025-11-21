@@ -80,7 +80,7 @@ const LoginPage: React.FC = () =>{
 
                                
                                 <label className="flex flex-col">
-                                    <p className="text-[#111318] text-base font-medium leading-normal pb-2">Password</p>
+                                    <p className="text-[#111318] text-base font-custom font-medium leading-normal pb-2">Password</p>
                                     <div className="relative flex w-full flex-1 items-stretch">
                                         <input 
                                             id="password"
